@@ -1,0 +1,38 @@
+kind: pipeline
+name: default
+
+platform:
+  os: windows
+  arch: amd64
+
+steps:
+- name: validate-excel
+  image: mcr.microsoft.com/windows/servercore:ltsc2019  
+  commands:
+  - echo "Validando la existencia del archivo Excel..."
+  - dir  # Muestra el directorio actual
+  - type config.xlsx  # Muestra el contenido del archivo config.xlsx
+  - echo "Archivo Excel validado."
+
+- name: validate-access
+  image: mcr.microsoft.com/windows/servercore:ltsc2019  
+  commands:
+  - echo "Validando la conexión a la base de datos Access"
+  - powershell -Command "& { 
+      if (Test-Path 'data.accdb') { 
+        Write-Output 'Base de datos Access encontrada.' 
+      } else { 
+        Write-Output 'Base de datos Access no encontrada.' 
+        exit 1 
+      } 
+    }"
+  - echo "Base de datos Access validada."
+
+trigger:
+  branch:
+  - master
+  - develop
+  - main
+  event:
+  - push
+  - pull_request
